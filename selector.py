@@ -10,6 +10,7 @@ import GWO as gwo
 import MFO as mfo
 import CS as cs
 import BAT as bat
+import SMO as smo
 import csv
 import numpy
 import time
@@ -64,6 +65,8 @@ def selector(algo,func_details,popSize,Iter,trainDataset,testDataset):
         x=cs.CS(getattr(costNN, function_name),lb,ub,dim,popSize,Iter,trainInput,trainOutput,net)
     if(algo==5):
         x=bat.BAT(getattr(costNN, function_name),lb,ub,dim,popSize,Iter,trainInput,trainOutput,net)
+    if(algo==6):
+        x=smo.main(getattr(costNN, function_name),lb,ub,dim,popSize,Iter,1.0e-5,trainInput,trainOutput,net)
     
 
     # Evaluate MLP classification model based on the training set

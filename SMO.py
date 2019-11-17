@@ -17,7 +17,7 @@ from solution import solution
 
 
 class SMO():
-    def __init__(self,objf1,lb1,ub1,dim1,PopSize1,acc_err1,iters1):
+    def __init__(self,objf1,lb1,ub1,dim1,PopSize1,acc_err1,iters1, trainInput,trainOutput,net):
         self.PopSize=PopSize1
         self.dim=dim1
         self.acc_err=acc_err1
@@ -29,8 +29,8 @@ class SMO():
         self.fitness = numpy.zeros(PopSize1)
         self.gpoint = numpy.zeros((PopSize1,2))
         self.prob=numpy.zeros(PopSize1)
-        self.LocalLimit=dim1*PopSize1;
-        self.GlobalLimit=PopSize1;
+        self.LocalLimit=dim1*PopSize1,
+        self.GlobalLimit=PopSize1,
         self.fit = numpy.zeros(PopSize1)
         self.MinCost=numpy.zeros(iters1)
         self.Bestpos=numpy.zeros(dim1)
@@ -38,7 +38,10 @@ class SMO():
         self.func_eval=0
         self.part=1
         self.max_part=5
-        self.cr=0.1
+        self.cr=0.1,
+        self.trainInput=trainInput,
+        self.trainOutput=trainOutput
+        self.net=net
 
 
     # ====== Function: CalculateFitness() ========= #
@@ -67,7 +70,7 @@ class SMO():
         for i in range(self.PopSize):
             # Performing the bound checking
             self.pos[i,:]=numpy.clip(self.pos[i,:], self.lb, self.ub)
-            self.fun_val[i]=self.objf(self.pos[i,:])
+            self.fun_val[i]=self.objf(self.pos[i,:],self.trainInput,self.trainOutput,self.net)
             self.func_eval+=1
             self.fitness[i]=self.CalculateFitness(self.fun_val[i])
 
@@ -86,14 +89,14 @@ class SMO():
 
     # =========== Function: CalculateProbabilities() ============ #
     def CalculateProbabilities(self):
-        maxfit=self.fitness[0];
+        maxfit=self.fitness[0]
         i=1
         while(i<self.PopSize):
             if (self.fitness[i]>maxfit):
-                maxfit=self.fitness[i];
+                maxfit=self.fitness[i]
             i+=1
         for i in range(self.PopSize):
-            self.prob[i]=(0.9*(self.fitness[i]/maxfit))+0.1;
+            self.prob[i]=(0.9*(self.fitness[i]/maxfit))+0.1
     # ========================== X X X ======================== #
 
     # ================= Function: create_group() ================ #
@@ -168,7 +171,7 @@ class SMO():
                     new_position[0,j]=self.pos[i,j]
             new_position=numpy.clip(new_position, self.lb, self.ub)
             
-            ObjValSol=self.objf(new_position)
+            ObjValSol=self.objf(new_position, self.trainInput, self.trainOutput,self.net)
             self.func_eval+=1
             FitnessSol=self.CalculateFitness(ObjValSol)
             if (FitnessSol>self.fitness[i]):
@@ -184,8 +187,8 @@ class SMO():
         new_position=numpy.zeros((1,self.dim))
         lo=int(self.gpoint[k,0])
         hi=int(self.gpoint[k,1])
-        i=lo;
-        l=lo;
+        i=lo
+        l=lo
         while(l<hi):
             if (random.random() < self.prob[i]):
                 l+=1
@@ -197,16 +200,16 @@ class SMO():
                 new_position=self.pos[i,:]
                 new_position[param2change]=self.pos[i,param2change]+(GlobalLeaderPosition[param2change]-self.pos[i,param2change])*(random.random())+(self.pos[PopRand,param2change]-self.pos[i,param2change])*(random.random()-0.5)*2
                 new_position=numpy.clip(new_position, self.lb, self.ub)
-                ObjValSol=self.objf(new_position)
+                ObjValSol=self.objf(new_position,self.trainInput, self.trainOutput,self.net)
                 self.func_eval+=1
                 FitnessSol=self.CalculateFitness(ObjValSol)
                 if (FitnessSol>self.fitness[i]):
                     self.pos[i,:]=new_position
                     self.fun_val[i]=ObjValSol
                     self.fitness[i]=FitnessSol
-            i+=1;
+            i+=1
             if (i==(hi)):
-                i=lo;
+                i=lo
     # ========================== X X X ======================== #
 
     # ================= Function: GlobalLeaderDecision() ================ #
@@ -240,7 +243,7 @@ class SMO():
                         else:
                             self.pos[i,j]=self.pos[i,j]+(GlobalLeaderPosition[j]-self.pos[i,j])*random.random()+(self.pos[i,j]-LocalLeaderPosition[k,j])*random.random()
                     self.pos[i,:]=numpy.clip(self.pos[i,:], self.lb, self.ub)
-                    self.fun_val[i]=self.objf(self.pos[i,:])
+                    self.fun_val[i]=self.objf(self.pos[i,:],self.trainInput,self.trainOutput,self.net)
                     self.func_eval+=1
                     self.fitness[i]=self.CalculateFitness(self.fun_val[i])
                     i+=1
@@ -248,8 +251,8 @@ class SMO():
     # ========================== X X X ======================== #
 
 # ==================================== Main() ===================================== #
-def main(objf1,lb1,ub1,dim1,PopSize1,iters,acc_err1,obj_val,succ_rate,mean_feval):
-    smo=SMO(objf1,lb1,ub1,dim1,PopSize1,acc_err1,iters)
+def main(objf1,lb1,ub1,dim1,PopSize1,iters,acc_err1,trainInput,trainOutput,net):
+    smo=SMO(objf1,lb1,ub1,dim1,PopSize1,acc_err1,iters,trainInput,trainOutput,net)
     s=solution()
     print("SMO is optimizing  \""+smo.objf.__name__+"\"")    
     timerStart=time.time() 
@@ -303,27 +306,25 @@ def main(objf1,lb1,ub1,dim1,PopSize1,iters,acc_err1,obj_val,succ_rate,mean_feval
 
         # ================ Displaying the fitness of each iteration ============== #        
         if (l%1==0):
-               print(['At iteration '+ str(l+1)+ ' the best fitness is '+ str(gBestScore)]);
+               print(['At iteration '+ str(l+1)+ ' the best fitness is '+ str(gBestScore)])
 
         # ====================== Checking: acc_error ============================ #        
-        if(math.fabs(GlobalMin-obj_val)<=smo.acc_err):
-            succ_rate+=1
-            mean_feval=mean_feval+smo.func_eval
-            break
+        # if(math.fabs(GlobalMin-obj_val)<=smo.acc_err):
+        #     succ_rate+=1
+        #     mean_feval=mean_feval+smo.func_eval
+        #     break
     # ========================= XXX Ending of Loop XXX ========================== #        
 
     # =========================== XX Result saving XX =========================== #
-    error1=math.fabs(GlobalMin-obj_val)
+    # error1=math.fabs(GlobalMin-obj_val)
     timerEnd=time.time()  
     s.endTime=time.strftime("%Y-%m-%d-%H-%M-%S")
     s.executionTime=timerEnd-timerStart
     s.convergence=smo.MinCost
     s.optimizer="SMO"
-    s.error = error1
-    s.feval=smo.func_eval
     s.objfname=smo.objf.__name__
-
-    return s, succ_rate,mean_feval
+    s.bestIndividual=GlobalMin
+    return s
 
     # ================================ X X X =================================== #
          

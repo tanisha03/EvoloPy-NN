@@ -5,16 +5,17 @@ import time
 import selector as slctr
 
 # Select optimizers
-PSO= True
-MVO= True
-GWO = True
-MFO= True
-CS= True
-BAT=True
+PSO= False
+MVO= False
+GWO = False
+MFO= False
+CS= False
+BAT=False
+SMO=True
 
 
 
-optimizer=[PSO, MVO, GWO, MFO, CS, BAT]
+optimizer=[PSO, MVO, GWO, MFO, CS, BAT, SMO]
 datasets=["BreastCancer", "Diabetes", "Liver", "Parkinsons", "Vertebral"]
         
 # Select number of repetitions for each experiment. 
