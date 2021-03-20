@@ -55,6 +55,7 @@ for j in range (0, len(datasets)):        # specfiy the number of the datasets
                 func_details=["costNN",-1,1]
                 trainDataset=datasets[j]+"Train.csv"
                 testDataset=datasets[j]+"Test.csv"
+                # print(i)
                 x=slctr.selector(i,func_details,PopulationSize,Iterations,trainDataset,testDataset)
                   
                 if(Export==True):

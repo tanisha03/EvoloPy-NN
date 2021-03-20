@@ -55,6 +55,8 @@ class SMO():
 
     # ==================================== Function: Initialization() ============================================ #
     def initialize(self):
+        self.trainInput=self.trainInput[0]
+        # print(self.trainInput.shape)
         global GlobalMin, GlobalLeaderPosition, GlobalLimitCount, LocalMin, LocalLimitCount, LocalLeaderPosition
         S_max=int(self.PopSize/2)
         LocalMin = numpy.zeros(S_max)
@@ -70,6 +72,7 @@ class SMO():
         for i in range(self.PopSize):
             # Performing the bound checking
             self.pos[i,:]=numpy.clip(self.pos[i,:], self.lb, self.ub)
+            # print(self.trainInput)
             self.fun_val[i]=self.objf(self.pos[i,:],self.trainInput,self.trainOutput,self.net)
             self.func_eval+=1
             self.fitness[i]=self.CalculateFitness(self.fun_val[i])
@@ -165,6 +168,11 @@ class SMO():
                 if (PopRand != i):
                     break
             for j in range(self.dim):
+                # print(type(self.cr),"================")
+                # print(self.cr)
+                # self.cr=self.cr[0]
+                if(not type(self.cr)==float):
+                    self.cr=self.cr[0]
                 if (random.random() >= self.cr):
                     new_position[0,j]=self.pos[i,j]+(LocalLeaderPosition[k,j]-self.pos[i,j])*(random.random())+(self.pos[PopRand,j]-self.pos[i,j])*(random.random()-0.5)*2
                 else:
@@ -215,7 +223,8 @@ class SMO():
     # ================= Function: GlobalLeaderDecision() ================ #
     def GlobalLeaderDecision(self):
         global GlobalLimitCount
-        if(GlobalLimitCount> self.GlobalLimit):
+        # print(self.GlobalLimit,"============")
+        if(GlobalLimitCount> self.GlobalLimit[0]):
             GlobalLimitCount=0
             if(self.part<self.max_part):
                 self.part=self.part+1
@@ -252,6 +261,7 @@ class SMO():
 
 # ==================================== Main() ===================================== #
 def main(objf1,lb1,ub1,dim1,PopSize1,iters,acc_err1,trainInput,trainOutput,net):
+    # print(trainInput.shape)
     smo=SMO(objf1,lb1,ub1,dim1,PopSize1,acc_err1,iters,trainInput,trainOutput,net)
     s=solution()
     print("SMO is optimizing  \""+smo.objf.__name__+"\"")    
@@ -296,11 +306,14 @@ def main(objf1,lb1,ub1,dim1,PopSize1,iters,acc_err1,trainInput,trainOutput,net):
         smo.GlobalLeaderDecision()
 
         # ======================= Updating: 'cr' parameter ======================= #
+        if(not type(smo.cr)==float):
+            smo.cr=smo.cr[0]
         smo.cr = smo.cr + (0.4/iters)
         
         # ====================== Saving the best individual ====================== #        
         smo.MinCost[l] = GlobalMin
-        Bestpos=smo.pos[1,:]
+        smo.Bestpos=smo.pos[1,:]
+        # print(type(smo.Bestpos),'++++++++++++++++++')
         gBestScore=GlobalMin
 
 
@@ -323,7 +336,7 @@ def main(objf1,lb1,ub1,dim1,PopSize1,iters,acc_err1,trainInput,trainOutput,net):
     s.convergence=smo.MinCost
     s.optimizer="SMO"
     s.objfname=smo.objf.__name__
-    s.bestIndividual=GlobalMin
+    s.bestIndividual=smo.Bestpos
     return s
 
     # ================================ X X X =================================== #

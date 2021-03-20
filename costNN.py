@@ -10,6 +10,8 @@ import time
 
 
 def costNN(x,inputs,outputs,net):
+    # print(inputs)
+    
     trainInput=inputs
     
     
@@ -27,8 +29,12 @@ def costNN(x,inputs,outputs,net):
     split1=HiddenNeurons*numInputs
     split2=split1+HiddenNeurons
     split3=split2+HiddenNeurons
-    
+    # print(split1,HiddenNeurons,numInputs)
     # input_w = 3X8 (HiddenNeurons*numInputs) 
+    print(type(x))
+    print(x.shape,split1,HiddenNeurons,numInputs,"===================")
+    if(x.shape[0]==1):
+        x=x[0]
     input_w =x[0:split1].reshape(HiddenNeurons,numInputs)
                        
     # layer_w = 1 X 3 (HiddenNeurons)

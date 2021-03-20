@@ -18,6 +18,7 @@ def evaluateNetClassifier(solution,inputs,outputs,net):
     
     
     x=solution.bestIndividual
+    print(type(x),'--------------------')
     
     printAcc=[]
     

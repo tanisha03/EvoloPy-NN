@@ -67,6 +67,7 @@ def selector(algo,func_details,popSize,Iter,trainDataset,testDataset):
         x=bat.BAT(getattr(costNN, function_name),lb,ub,dim,popSize,Iter,trainInput,trainOutput,net)
     if(algo==6):
         x=smo.main(getattr(costNN, function_name),lb,ub,dim,popSize,Iter,1.0e-5,trainInput,trainOutput,net)
+    # print(type(x),'------------------------------')
     
 
     # Evaluate MLP classification model based on the training set
